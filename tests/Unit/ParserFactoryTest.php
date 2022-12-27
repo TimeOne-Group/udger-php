@@ -1,40 +1,45 @@
 <?php
 
-namespace unit;
+namespace Tests\Unit;
 
-use Codeception\TestCase\Test;
+use ArgumentCountError;
+use Codeception\Test\Unit;
+use Exception;
 use Udger\ParserFactory;
 use Udger\Parser;
 
-class ParserFactoryTest extends Test
+class ParserFactoryTest extends Unit
 {
     /**
      * @var ParserFactory
      */
-    protected $factory;
+    protected ParserFactory $factory;
 
-    protected function _before()
+    protected function _before(): void
     {
         $this->factory = new ParserFactory('/dev/null');
     }
 
-    public function testGetParser()
+    public function testGetParser(): void
     {
         self::assertInstanceOf(Parser::class, $this->factory->getParser());
     }
 
-    public function testNewFactoryWithoutPathShouldFail()
+    public function testNewFactoryWithoutPathShouldFail(): void
     {
-        $this->setExpectedException('ArgumentCountError');
+        $this->expectException(ArgumentCountError::class);
         new ParserFactory();
     }
 
-    public function testGetParserFromDataFile()
+    /**
+     * @throws Exception
+     */
+    public function testGetParserFromDataFile(): void
     {
         self::assertInstanceOf(Parser::class, ParserFactory::buildParserFromDataFile('/dev/null'));
     }
 
-    public function testGetParserFromMySQL()
+    public function testGetParserFromMySQL(): void
     {
         self::assertInstanceOf(
             Parser::class,

@@ -1,23 +1,26 @@
 <?php
 
-namespace functional;
+namespace Tests\Functional;
 
-use Codeception\TestCase\Test;
-use Codeception\Util\Stub;
+use Codeception\Stub;
+use Codeception\Test\Unit;
+use Exception;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Udger\Parser;
-use Psr\Log\LoggerInterface;
 use Udger\Helper\IP;
 
-class ParserFunctionalTest extends Test
+class ParserFunctionalTest extends Unit
 {
     /**
      * @var Parser
      */
-    protected $parser;
+    protected Parser $parser;
 
-    protected function _before()
+    /**
+     * @throws Exception
+     */
+    protected function _before(): void
     {
         date_default_timezone_set('Europe/Paris');
         $log = new Logger('name');
@@ -26,29 +29,41 @@ class ParserFunctionalTest extends Test
         $this->parser = new Parser($log, Stub::makeEmpty(IP::class));
     }
 
-    private function withSQLite()
+    /**
+     * @throws Exception
+     */
+    private function withSQLite(): void
     {
-        $this->parser->setDataFile(dirname(__DIR__) . "/fixtures/udgercache/udgerdb_v3.dat");
+        $this->parser->setDataFile(dirname(__DIR__) . "/Support/Data/udgercache/udgerdb_v3.dat");
     }
 
-    private function withMySQL()
+    private function withMySQL(): void
     {
         $this->parser->setMySQLConnection('mysql:host=db;dbname=udger;charset=UTF8', 'udger', 'udger');
     }
 
-    public function testParse()
+    /**
+     * @throws Exception
+     */
+    public function testParse(): void
     {
         $this->withSQLite();
         $this->assertFirefox();
     }
 
-    public function testParseWithMySQL()
+    /**
+     * @throws Exception
+     */
+    public function testParseWithMySQL(): void
     {
         $this->withMySQL();
         $this->assertFirefox();
     }
 
-    public function testParseBot()
+    /**
+     * @throws Exception
+     */
+    public function testParseBot(): void
     {
         $this->withSQLite();
         $this->parser->setUA('PINGOMETER_BOT_(HTTPS://PINGOMETER.COM)');
@@ -96,7 +111,10 @@ class ParserFunctionalTest extends Test
         self::assertEquals("no", $result["user_agent"]["crawler_respect_robotstxt"]);
     }
 
-    public function testParseEmpty()
+    /**
+     * @throws Exception
+     */
+    public function testParseEmpty(): void
     {
         $this->withSQLite();
         $this->parser->setUA("");
@@ -106,7 +124,10 @@ class ParserFunctionalTest extends Test
         self::assertArrayHasKey("ip_address", $result);
     }
 
-    public function testParseNull()
+    /**
+     * @throws Exception
+     */
+    public function testParseNull(): void
     {
         $this->withSQLite();
         $this->parser->setUA(null);
@@ -116,7 +137,10 @@ class ParserFunctionalTest extends Test
         self::assertArrayHasKey("ip_address", $result);
     }
 
-    private function assertFirefox()
+    /**
+     * @throws Exception
+     */
+    private function assertFirefox(): void
     {
         $this->parser->setUA('Mozilla/5.0 (Windows NT 10.0; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0');
         $result = $this->parser->parse();

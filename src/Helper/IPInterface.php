@@ -7,8 +7,8 @@ namespace Udger\Helper;
  */
 interface IPInterface
 {
-    const IPv4 = 4;
-    const IPv6 = 6;
+    public const IPv4 = 4;
+    public const IPv6 = 6;
 
     public function getIpVersion($ip);
 
