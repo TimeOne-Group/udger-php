@@ -1,4 +1,4 @@
-FROM php:7.2-cli-alpine
+FROM php:8.0-cli-alpine
 
 # Install composer from the official image
 COPY --from=composer /usr/bin/composer /usr/bin/composer

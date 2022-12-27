@@ -12,6 +12,7 @@ namespace Udger;
 
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use PDO;
 use Psr\Log\LoggerInterface;
 use Udger\Helper\IPInterface;
@@ -28,77 +29,77 @@ class Parser implements ParserInterface
      *
      * @type integer
      */
-    protected $timeout = 60; // in seconds
+    protected int $timeout = 60; // in seconds
 
     /**
      * Api URL
      *
      * @type string
      */
-    protected $api_url = 'http://api.udger.com/v3';
+    protected string $api_url = 'https://api.udger.com/v3';
 
     /**
      * Path to the data file
      *
      * @type string
      */
-    protected $path;
+    protected string $path;
 
     /**
      * Personal access key
      *
      * @type string
      */
-    protected $access_key;
+    protected string $access_key;
 
     /**
      * IP address for parse
      *
      * @type string
      */
-    protected $ip;
+    protected string $ip;
 
     /**
      * Useragent string for parse
      *
-     * @type string
+     * @type ?string
      */
-    protected $ua;
+    protected ?string $ua;
 
     /**
      * DB link
      *
      * @type PDO
      */
-    protected $dbdat;
+    protected PDO $dbdat;
 
     /**
      * @var IPInterface
      */
-    protected $ipHelper;
+    protected IPInterface $ipHelper;
 
     /**
      * @boolean LRU cache enable/disable
      */
-    protected $cacheEnable = true;
+    protected bool $cacheEnable = true;
 
     /**
      * @array LRU cache
      */
-    protected $cache = [];
+    protected array $cache = [];
 
     /**
      * @int LRU cache size
      */
-    protected $cacheSize = 3000;
+    protected int $cacheSize = 3000;
     /**
      * @var LoggerInterface
      */
-    protected $logger;
+    protected LoggerInterface $logger;
     /**
      * @var array
      */
-    protected $mySQLConnection;
+    protected array $mySQLConnection;
 
     /**
      * @param LoggerInterface $logger
@@ -114,9 +115,9 @@ class Parser implements ParserInterface
      * Check your subscription
      *
      * @return array
-     * @throws Exception
+     * @throws Exception|GuzzleException
      */
-    public function account()
+    public function account(): array
     {
         $this->logger->debug("account: start");
 
@@ -138,7 +139,7 @@ class Parser implements ParserInterface
         ));
 
         $contents = $result->getBody()->getContents();
-        $data = json_decode($contents, true);
+        $data = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
 
         // check for non zero status codes
         if (isset($data['flag']) && $data['flag'] > 0) {
@@ -151,10 +152,10 @@ class Parser implements ParserInterface
     /**
      * Set the useragent string
      *
-     * @param string
+     * @param string $ua
      * @return bool
      */
-    public function setUA($ua)
+    public function setUA($ua): bool
     {
         $this->logger->debug('setting: set useragent string to ' . $ua);
         $this->ua = $ua;
@@ -164,10 +165,10 @@ class Parser implements ParserInterface
     /**
      * Set the IP address
      *
-     * @param string
+     * @param string $ip
      * @return bool
      */
-    public function setIP($ip)
+    public function setIP($ip): bool
     {
         $this->logger->debug('setting: set IP address to ' . $ip);
         $this->ip = $ip;
@@ -180,12 +181,12 @@ class Parser implements ParserInterface
      * @return array
      * @throws Exception
      */
-    public function parse()
+    public function parse(): array
     {
         $this->setDBdat();
 
         // validate
-        if (is_null($this->dbdat) === true) {
+        if (!isset($this->dbdat) === true) {
             $this->logger->debug('db: data file not found, download the data manually from http://data.udger.com/');
             return array(
                 'flag' => 3,
@@ -281,7 +282,7 @@ class Parser implements ParserInterface
             if ($this->cacheEnable) {
                 $retCache = $this->getCache(md5($this->ua));
                 if ($retCache) {
-                    $ret['user_agent'] = unserialize($retCache);
+                    $ret['user_agent'] = unserialize($retCache, ['allowed_classes' => false]);
                     $usedCache = true;
                 }
             }
@@ -621,14 +622,14 @@ class Parser implements ParserInterface
      * Open DB file
      * @throws Exception
      */
-    protected function setDBdat()
+    protected function setDBdat(): void
     {
-        if (is_null($this->dbdat)) {
-            if (is_null($this->path) && is_null($this->mySQLConnection)) {
+        if (!isset($this->dbdat)) {
+            if (!isset($this->path) && !isset($this->mySQLConnection)) {
                 throw new Exception("Unable to find database source");
             }
 
-            if (!is_null($this->mySQLConnection)) {
+            if (isset($this->mySQLConnection)) {
                 $this->dbdat = new PDO(
                     $this->mySQLConnection['dsn'],
                     $this->mySQLConnection['user'],
@@ -648,7 +649,7 @@ class Parser implements ParserInterface
     /**
      * LRU cashe set
      */
-    protected function setCache($key, $value)
+    protected function setCache($key, $value): void
     {
         $this->logger->debug('LRUcache: set to key' . $key);
         $this->cache[$key] = $value;
@@ -659,8 +660,10 @@ class Parser implements ParserInterface
 
     /**
      * LRU cashe get
+     * @param string $key
+     * @return string|null
      */
-    protected function getCache($key)
+    protected function getCache(string $key): ?string
     {
         $this->logger->debug('LRUcache: get key' . $key);
         if (!isset($this->cache[$key])) {
@@ -678,10 +681,10 @@ class Parser implements ParserInterface
     /**
      * Set LRU cache enable/disable
      *
-     * @param bool
+     * @param bool $set
      * @return bool
      */
-    public function setCacheEnable($set)
+    public function setCacheEnable(bool $set): bool
     {
         $this->cacheEnable = $set;
         $log = $set ? 'true' : 'false';
@@ -692,10 +695,10 @@ class Parser implements ParserInterface
     /**
      * Set LRU cache enable/disable
      *
-     * @param Int
+     * @param int $size
      * @return bool
      */
-    public function setCacheSize($size)
+    public function setCacheSize(int $size): bool
     {
         $this->cacheSize = $size;
         $this->logger->debug('LRUcache: set size: ' . $size);
@@ -707,7 +710,7 @@ class Parser implements ParserInterface
      *
      * @return bool
      */
-    public function clearCache()
+    public function clearCache(): bool
     {
         $this->cache = array();
         $this->logger->debug('LRUcache: clear cache');
@@ -717,11 +720,11 @@ class Parser implements ParserInterface
     /**
      * Set path to sqlite file
      *
-     * @param string
+     * @param string $path
      * @return bool
      * @throws Exception
      */
-    public function setDataFile($path)
+    public function setDataFile($path): bool
     {
         if (false === file_exists($path)) {
             throw new Exception(sprintf("%s does not exist", $path));
@@ -734,9 +737,11 @@ class Parser implements ParserInterface
 
     /**
      * @param $dsn
+     * @param $user
+     * @param $password
      * @return bool
      */
-    public function setMySQLConnection($dsn, $user, $password)
+    public function setMySQLConnection($dsn, $user, $password): bool
     {
         $this->mySQLConnection = [
             'dsn' => $dsn,
@@ -750,10 +755,10 @@ class Parser implements ParserInterface
     /**
      * Set the account access key
      *
-     * @param string
+     * @param string $access_key
      * @return bool
      */
-    public function setAccessKey($access_key)
+    public function setAccessKey($access_key): bool
     {
         $this->logger->debug('setting: set accesskey to ' . $access_key);
         $this->access_key = $access_key;

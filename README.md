@@ -71,13 +71,13 @@ $ret = $parser->parse();
 ### Initialize
 
 ```bash
-docker-compose up db -d
-docker-compose run --rm init
+docker compose up db -d
+docker compose run --rm init
 ```
 
 ### Running tests  
 ```bash
-docker-compose run --rm php ./vendor/bin/codecept run
+docker compose run --rm php ./vendor/bin/codecept run
 ```
 
 ### Automatic updates download

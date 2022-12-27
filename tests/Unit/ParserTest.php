@@ -1,21 +1,25 @@
 <?php
 
-namespace unit;
+namespace Tests\Unit;
 
-use Codeception\TestCase\Test;
-use Codeception\Util\Stub;
+use Codeception\Test\Unit;
+use Codeception\Stub;
+use Exception;
 use Udger\Parser;
 use Psr\Log\LoggerInterface;
 use Udger\Helper\IP;
 
-class ParserTest extends Test
+class ParserTest extends Unit
 {
     /**
      * @var Parser
      */
-    protected $parser;
+    protected Parser $parser;
 
-    protected function _before()
+    /**
+     * @throws Exception
+     */
+    protected function _before(): void
     {
         $this->parser = new Parser(
             Stub::makeEmpty(LoggerInterface::class),
@@ -25,28 +29,28 @@ class ParserTest extends Test
 
     public function testSetDataFile()
     {
-        $this->setExpectedException("Exception");
+        $this->expectException(Exception::class);
         self::assertTrue($this->parser->setDataFile("/this/is/a/missing/path"));
     }
 
-    public function testSetAccessKey()
+    public function testSetAccessKey(): void
     {
         self::assertTrue($this->parser->setAccessKey("123456"));
     }
 
-    public function testSetUA()
+    public function testSetUA(): void
     {
         self::assertTrue($this->parser->setUA("agent"));
     }
 
-    public function testSetIP()
+    public function testSetIP(): void
     {
         self::assertTrue($this->parser->setIP("0.0.0.0"));
     }
 
-    public function testAccount()
+    public function testAccount(): void
     {
-        $this->setExpectedException("Exception");
+        $this->expectException(Exception::class);
         $this->parser->account();
     }
 }

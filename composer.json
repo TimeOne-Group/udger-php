@@ -1,29 +1,32 @@
 {
-  "name": "timeonegroup/udger-php",
-  "description": "PHP agent string parser based on Udger https://udger.com/products/local_parser",
-  "authors": [
-    {
-      "name": "Fabien Barbaud",
-      "email": "fabien.barbaud@timeonegroup.com"
+    "name": "timeonegroup/udger-php",
+    "description": "PHP agent string parser based on Udger https://udger.com/products/local_parser",
+    "authors": [
+        {
+            "name": "Fabien Barbaud",
+            "email": "fabien.barbaud@timeonegroup.com"
+        }
+    ],
+    "type": "library",
+    "license": "MIT",
+    "version": "4.0.1",
+    "require": {
+        "php": ">=8.0",
+        "guzzlehttp/guzzle": "^7.5@dev",
+        "monolog/monolog": "^2",
+        "ext-json": "*",
+        "ext-pdo": "*"
+    },
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Udger\\": "src/",
+            "Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "codeception/codeception": "5.0.x-dev",
+        "codeception/module-phpbrowser": "*",
+        "codeception/module-asserts": "*"
     }
-  ],
-  "type": "library",
-  "license": "MIT",
-  "version": "4.0.1",
-  "require": {
-    "php": ">=7.2.0",
-    "guzzlehttp/guzzle": "^6.2",
-    "monolog/monolog": "^2",
-    "ext-json": "*",
-    "ext-pdo": "*"
-  },
-  "minimum-stability": "dev",
-  "autoload": {
-    "psr-4": {
-      "Udger\\": "src/"
-    }
-  },
-  "require-dev": {
-    "codeception/codeception": "^2.1"
-  }
 }

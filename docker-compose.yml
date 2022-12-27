@@ -23,4 +23,4 @@ services:
     working_dir: /usr/src/myapp
     volumes:
       - ./tests/fixtures/udgercache:/usr/src/myapp
-    command: bash -c "pip install sqlite3-to-mysql && sqlite3mysql -f udgerdb_v3.dat -d udger -u udger -p udger -h db"
+    command: bash -c "pip install sqlite3-to-mysql && sqlite3mysql -f udgerdb_v3.dat -d udger -u udger --mysql-password udger -h db"

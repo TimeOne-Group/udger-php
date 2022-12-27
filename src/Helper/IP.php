@@ -16,7 +16,7 @@ class IP implements IPInterface
      * @param string $ip
      * @return integer|boolean Returns version or false on invalid address
      */
-    public function getIpVersion($ip)
+    public function getIpVersion($ip): bool|int
     {
         if (false !== filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
             return self::IPv6;
@@ -36,7 +36,7 @@ class IP implements IPInterface
      * @param string $ip
      * @return integer
      */
-    public function getIpLong($ip)
+    public function getIpLong($ip): int
     {
         return (int)sprintf('%u', ip2long($ip));
     }
@@ -48,7 +48,7 @@ class IP implements IPInterface
      * @param string $ip
      * @return array
      */
-    public function getIp6array($ip)
+    public function getIp6array($ip): array
     {
         // expand - example: "2600:3c00::" ->  "2600:3c00:0000:0000:0000:0000:0000:0000"
         $hex = unpack("H*hex", inet_pton($ip));

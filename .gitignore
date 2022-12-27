@@ -2,4 +2,3 @@
 /run/*
 /vendor/
 .idea
-/tests/_log/*.log
